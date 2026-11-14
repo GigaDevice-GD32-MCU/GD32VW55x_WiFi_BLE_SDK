@@ -49,6 +49,8 @@ OF SUCH DAMAGE.
 #define LED_RUN           GPIO_PIN_0 //GPIO_PIN_11
 // LED indicating a reception
 #define LED_RX            GPIO_PIN_2 //GPIO_PIN_12
+// LED indicating WiFi is ready
+#define LED_WIFI_READY    GPIO_PIN_13
 // Macro to output a value on the GPIOs
 //#define GPIO_OUT(val)     (val ? gpio_bit_set(GPIOB, GPIO_PIN_13) : gpio_bit_reset(GPIOB, GPIO_PIN_13))
 // Macro to enable LED

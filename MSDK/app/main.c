@@ -48,6 +48,7 @@ OF SUCH DAMAGE.
 #include "version.h"
 #include "_build_date.h"
 #include "config_gdm32.h"
+#include "wifi_sta.h"
 #ifdef CONFIG_FATFS_SUPPORT
 #include "fatfs.h"
 #endif
@@ -91,6 +92,10 @@ static void application_init(void)
 #ifdef CFG_WLAN_SUPPORT
     if (wifi_init()) {
         dbg_print(ERR, "wifi init failed\r\n");
+    } else {
+        if (wifi_sta_start() != 0) {
+            dbg_print(ERR, "wifi sta start failed\r\n");
+        }
     }
 #endif
 #ifdef CONFIG_FATFS_SUPPORT
