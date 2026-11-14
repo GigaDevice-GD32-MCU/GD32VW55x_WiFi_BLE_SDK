@@ -78,7 +78,7 @@ extern "C" {
 #if defined(CONFIG_BOARD) && (CONFIG_BOARD == PLATFORM_BOARD_32VW55X_EVAL || CONFIG_BOARD == PLATFORM_BOARD_32VW55X_SONIC)
 #define LOG_UART                UART1
 #else
-#define LOG_UART                UART2
+#define LOG_UART                USART0
 #endif /* CONFIG_BOARD */
 #endif /* CFG_BLE_HCI_MODE */
 

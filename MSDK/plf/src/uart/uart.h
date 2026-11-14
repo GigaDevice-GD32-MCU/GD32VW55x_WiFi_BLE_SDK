@@ -54,6 +54,14 @@ extern "C" {
 #define USART0_RX_GPIO                  GPIOB
 #define USART0_RX_PIN                   GPIO_PIN_15
 #define USART0_RX_AF_NUM                GPIO_AF_8
+#elif CONFIG_BOARD == PLATFORM_BOARD_32VW55X_LCKFB
+#define USART0_TX_GPIO                  GPIOB
+#define USART0_TX_PIN                   GPIO_PIN_15
+#define USART0_TX_AF_NUM                GPIO_AF_8
+
+#define USART0_RX_GPIO                  GPIOA
+#define USART0_RX_PIN                   GPIO_PIN_8
+#define USART0_RX_AF_NUM                GPIO_AF_2
 #else /* PLATFORM_BOARD_32VW55X_F527 */
 #define USART0_TX_GPIO                  GPIOA
 #define USART0_TX_PIN                   GPIO_PIN_0
