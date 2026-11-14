@@ -52,6 +52,10 @@ OF SUCH DAMAGE.
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/x509_crt.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "core_feature_timer.h"
+
 #ifdef CONFIG_OTA_DEMO_SUPPORT
 
 #define HTTP_GET_MAX_LEN            1024
@@ -59,7 +63,7 @@ OF SUCH DAMAGE.
 #define INVALID_SOCKET              (-1)
 #define OTA_SOCKET_RECV_TIMEOUT     60000
 
-#define HTTP_PORT                   80
+#define HTTP_PORT                   8088
 #define HTTPS_PORT                  443
 #define TERM                        "\r\n"
 #define ENDING                      "\r\n\r\n"
@@ -629,7 +633,9 @@ static void ota_demo_task(void)
         goto Exit;
     }
 
-    app_print("Download new image successfully. Please reboot now.\r\n");
+    app_print("Download new image successfully. Rebooting...\r\n");
+    vTaskDelay(pdMS_TO_TICKS(500));
+    SysTimer_SoftwareReset();
 Exit:
     /* Cleanup SSL context if using HTTPS */
     if (ota_demo_cfg.use_ssl) {

@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+    - --target=riscv32-unknown-elf
+  Remove:
+    - -march=*
+    - -mabi=*

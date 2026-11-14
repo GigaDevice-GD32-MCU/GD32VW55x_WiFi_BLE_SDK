@@ -46,7 +46,7 @@ OF SUCH DAMAGE.
 #define START_TASK_PRIO             4
 #endif
 
-// #define CONFIG_OTA_DEMO_SUPPORT
+#define CONFIG_OTA_DEMO_SUPPORT
 #ifdef CONFIG_OTA_DEMO_SUPPORT
 #define OTA_DEMO_STACK_SIZE         512
 #define OTA_DEMO_TASK_PRIO          1

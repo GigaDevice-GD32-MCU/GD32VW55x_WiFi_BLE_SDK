@@ -1,3 +1,18 @@
 cmake_build/
 tools/
 MSDK/app/_build_date.h
+
+# ==============================
+# Build output / Generated files
+# ==============================
+
+# MBL build output
+/MBL/project/cmake/bin/
+
+# MSDK build output
+/MSDK/projects/cmake/output/bin/
+
+# Generated firmware images
+/scripts/images/MBL.bin
+/scripts/images/image-all.bin
+/scripts/images/image-ota.bin

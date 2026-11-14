@@ -12,6 +12,7 @@ target_sources(${TARGET_EXE}
         mqtt_app/mqtt_cmd.c
         ota_demo.c
         ping.c
+        wifi_sta.c
     )
 
 

@@ -5,6 +5,9 @@
 # set custom toolchain path
 # export TOOLCHAIN_PATH=/path/to/toolchain/bin
 
+# Windows firmware sync directory
+WINDOWS_BIN="/mnt/f/Embed/GD32VW553/bin"
+
 if [[ -n $1 ]]; then
     APP=$1
     if [[ -n $2 ]]; then
@@ -77,53 +80,109 @@ fi
 if type python3 > /dev/null 2>&1; then
     PYTHON=python3
 else
-    echo "#####################################################"
-    echo "Error:"
-    echo "Please run the following command to install the dependent libraries:"
-    echo "sudo apt install -y python3"
-    echo "#####################################################"
-    exit 1;
+    echo "Please install python3: sudo apt install -y python3"
+    exit 1
 fi
 
 if ! type make >/dev/null 2>&1; then
-    echo "#####################################################"
-    echo "Error:"
-    echo "Please run the following command to install the dependent libraries:"
-    echo "sudo apt install -y build-essential"
-    echo "#####################################################"
-    exit 1;
+    echo "Please install make: sudo apt install -y build-essential"
+    exit 1
 fi
 
 if ! type srec_cat >/dev/null 2>&1; then
-    echo "#####################################################"
-    echo "Error:"
-    echo "Please run the following command to install the dependent libraries:"
-    echo "sudo apt install srecord"
-    echo "#####################################################"
-    exit 1;
+    echo "Please install srecord: sudo apt install srecord"
+    exit 1
 fi
 
 if ! type cmake >/dev/null 2>&1; then
-    echo "#####################################################"
-    echo "Error:"
-    echo "Please run the following command to install the dependent libraries:"
-    echo "sudo apt install cmake"
-    echo "#####################################################"
-    exit 1;
+    echo "Please install cmake: sudo apt install cmake"
+    exit 1
 fi
-
 
 if [[ ! -e cmake_build ]]; then
     mkdir cmake_build
 fi
 
-cd cmake_build
-if [[ $USER_CMD = "clean" ]];then
-    rm ./* -rf
-else
-    cmake -G "Unix Makefiles" -DAPP=${APP} -DCONFIG_BLE_FEATURE=MAX -DCONFIG_MBEDTLS_VERSION="3.6.2" -DCMAKE_TOOLCHAIN_FILE:PATH=./scripts/cmake/toolchain.cmake  ..
+cd cmake_build || exit 1
 
-    make ${USER_CMD}
+
+if [[ $USER_CMD = "clean" ]]; then
+    echo "=========================================="
+    echo "Cleaning all build artifacts..."
+    echo "=========================================="
+
+    # Clean CMake intermediate files
+    rm -rf ./*
+
+    cd ../
+
+    # Clean MSDK build output
+    rm -rf MSDK/projects/cmake/output/bin/*
+
+    # Clean generated firmware images, keep predefined MSDK images
+    find scripts/images -maxdepth 1 -type f -name "*.bin" \
+    ! -name "image-all-msdk.bin" \
+    ! -name "image-all-msdk-full-app.bin" \
+    -delete
+
+    # Clean MBL build output
+    rm -rf MBL/project/cmake/bin/*
+
+    echo "=========================================="
+    echo "Clean completed!"
+    echo "Removed:"
+    echo "  - cmake_build intermediate files"
+    echo "  - MSDK build artifacts"
+    echo "  - Generated firmware BIN images"
+    echo "  - MBL build artifacts"
+    echo "=========================================="
+
+    exit 0
+else
+    cmake -G "Unix Makefiles" -DAPP=${APP} -DCONFIG_BLE_FEATURE=MAX -DCONFIG_MBEDTLS_VERSION="3.6.2" -DCMAKE_TOOLCHAIN_FILE:PATH=./scripts/cmake/toolchain.cmake ..
+
+    # Build firmware
+    if ! make ${USER_CMD}; then
+        echo "Build failed, skip firmware synchronization!"
+        exit 1
+    fi
+
+    cd ../
+
+    # Sync firmware to Windows
+    echo "=========================================="
+    echo "Synchronizing firmware to Windows..."
+    echo "=========================================="
+
+    mkdir -p "$WINDOWS_BIN" || exit 1
+
+    # Sync build output
+    rsync -av --progress \
+        "$PWD/MSDK/projects/cmake/output/bin/" \
+        "$WINDOWS_BIN/"
+
+    if [[ $? -ne 0 ]]; then
+        echo "Build output synchronization failed!"
+        exit 1
+    fi
+
+    # Sync OTA and ALL firmware images
+    rsync -av --progress \
+        "$PWD/scripts/images/MBL.bin" \
+        "$PWD/scripts/images/image-ota.bin" \
+        "$PWD/scripts/images/image-all.bin" \
+        "$WINDOWS_BIN/"
+
+    if [[ $? -ne 0 ]]; then
+        echo "Firmware image synchronization failed!"
+        exit 1
+    fi
+
+    echo "=========================================="
+    echo "Firmware synchronization completed!"
+    echo "Windows directory: F:\\Embed\\GD32VW553\\bin"
+    echo "=========================================="
+
+    exit 0
 fi
-cd ../
 
