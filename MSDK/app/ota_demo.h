@@ -35,23 +35,12 @@ OF SUCH DAMAGE.
 #ifndef _OTA_DEMO_H_
 #define _OTA_DEMO_H_
 
-/*
- * INCLUDE FILES
- ****************************************************************************************
- */
-
-/*
- * DEFINITIONS
- ****************************************************************************************
- */
+#include <stdint.h>
 
 #define OTA_IMAGE_URL_MAX_LEN       128
+#define OTA_MANIFEST_URL_MAX_LEN    128
 
-/*
- * FUNCTIONS
- ****************************************************************************************
- */
-
+/* srv_addr：服务器地址；manifest_url：Manifest 路径 */
 int32_t ota_demo_cfg_init(const char *srv_addr, const char *image_url, int use_ssl);
 
 int32_t ota_demo_start(void);

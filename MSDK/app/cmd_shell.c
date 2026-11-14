@@ -1545,62 +1545,38 @@ Usage:
 #ifdef CONFIG_OTA_DEMO_SUPPORT
 static void cmd_ota_demo(int argc, char **argv)
 {
-    char *ssid;
-    char *password;
     char *srv_addr;
     char *image_url;
-    size_t key_len;
-    size_t ssid_len;
 
-    if (argc == 4) {
-        ssid_len = strlen(argv[1]);
-        if (ssid_len <= MAC_SSID_LEN)
-            ssid = argv[1];
-        else
-            goto usage;
-
-        password = NULL;
-        srv_addr = argv[2];
-        image_url = argv[3];
-    } else if (argc == 5) {
-        ssid_len = strlen(argv[1]);
-        if (ssid_len <= MAC_SSID_LEN)
-            ssid = argv[1];
-        else
-            goto usage;
-
-        key_len = strlen(argv[2]);
-        if (key_len <= WPA_MAX_PSK_LEN && key_len >= WPA_MIN_PSK_LEN)
-            password = argv[2];
-        else
-            goto usage;
-
-        srv_addr = argv[3];
-        image_url = argv[4];
-    } else {
+    if (argc != 3)
         goto usage;
-    }
 
-    if (wifi_management_connect(ssid, password, true)) {
-        app_print("WiFi connect failed, OTA demo abort\r\n");
+    srv_addr = argv[1];
+    image_url = argv[2];
+
+    if (strlen(srv_addr) == 0 || strlen(image_url) == 0)
+        goto usage;
+
+    /* HTTP OTA */
+    if (ota_demo_cfg_init(srv_addr, image_url, 0)) {
+        app_print("OTA config init failed\r\n");
         return;
     }
 
-    if (ota_demo_cfg_init(srv_addr, image_url))
-        goto usage;
-
-    ota_demo_start();
+    /* Start OTA task */
+    if (ota_demo_start() != 0) {
+        app_print("OTA demo start failed\r\n");
+        return;
+    }
 
     return;
+
 usage:
-    app_print("Usage: ota_demo <ssid> [password] <srvaddr> <imageurl>\r\n");
-    app_print("<ssid>: The length should be between 1 and 32.\r\n");
-    app_print("[password]: The length should be between 8 and 63, but can be empty indicates open ap.\r\n");
-    app_print("<srvaddr>: IPv4 address of remote OTA server needded to set. eg: 192.168.0.123.\r\n");
-    app_print("<imageurl>: The length should be between 1 and 127.\r\n");
-    app_print("for example:\r\n");
-    app_print("    ota_demo test_ap 192.168.3.100 image-ota.bin, means connect to an open AP\r\n");
-    app_print("\t\t\tand update the image-ota.bin from 192.168.3.100.\r\n");
+    app_print("Usage: ota_demo <srvaddr> <imageurl>\r\n");
+    app_print("<srvaddr>: IPv4 address of remote OTA server.\r\n");
+    app_print("<imageurl>: OTA firmware filename or path.\r\n");
+    app_print("Example:\r\n");
+    app_print("    ota_demo 192.168.3.89 image-ota.bin\r\n");
 }
 #endif
 
